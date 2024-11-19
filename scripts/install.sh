@@ -5,7 +5,7 @@ set -e # Exit immediately if a command exits with a non-zero status
 ## $1 could be empty, so we need to disable this check
 #set -u # Treat unset variables as an error and exit
 set -o pipefail # Cause a pipeline to return the status of the last command that exited with a non-zero status
-CDN="https://cdn.coollabs.io/coolify"
+CDN="home/alexs/docker-dev/coolify"
 DATE=$(date +"%Y%m%d-%H%M%S")
 
 VERSION="1.6"
@@ -18,7 +18,7 @@ if [ $EUID != 0 ]; then
     exit
 fi
 
-echo -e "Welcome to Coolify Installer!"
+echo -e "Привіт! Рухаємося до Перемоги"
 echo -e "This script will install everything for you. Sit back and relax."
 echo -e "Source code: https://github.com/coollabsio/coolify/blob/main/scripts/install.sh\n"
 
@@ -57,14 +57,14 @@ if [ "$WARNING_SPACE" = true ]; then
     sleep 5
 fi
 
-mkdir -p /data/coolify/{source,ssh,applications,databases,backups,services,proxy,webhooks-during-maintenance,sentinel}
-mkdir -p /data/coolify/ssh/{keys,mux}
-mkdir -p /data/coolify/proxy/dynamic
+mkdir -p /var/lib/coolify/{source,ssh,applications,databases,backups,services,proxy,webhooks-during-maintenance,sentinel}
+mkdir -p /var/lib/coolify/ssh/{keys,mux}
+mkdir -p /var/lib/coolify/proxy/dynamic
 
-chown -R 9999:root /data/coolify
-chmod -R 700 /data/coolify
+chown -R 9999:root /var/lib/coolify
+chmod -R 700 /var/lib/coolify
 
-INSTALLATION_LOG_WITH_DATE="/data/coolify/source/installation-${DATE}.log"
+INSTALLATION_LOG_WITH_DATE="/var/lib/coolify/source/installation-${DATE}.log"
 
 exec > >(tee -a $INSTALLATION_LOG_WITH_DATE) 2>&1
 
@@ -76,7 +76,7 @@ getAJoke() {
     fi
 }
 OS_TYPE=$(grep -w "ID" /etc/os-release | cut -d "=" -f 2 | tr -d '"')
-ENV_FILE="/data/coolify/source/.env"
+ENV_FILE="/var/lib/coolify/source/.env"
 
 # Check if the OS is manjaro, if so, change it to arch
 if [ "$OS_TYPE" = "manjaro" ] || [ "$OS_TYPE" = "manjaro-arm" ]; then
@@ -444,10 +444,10 @@ else
 fi
 
 echo -e "5. Download required files from CDN. "
-curl -fsSL $CDN/docker-compose.yml -o /data/coolify/source/docker-compose.yml
-curl -fsSL $CDN/docker-compose.prod.yml -o /data/coolify/source/docker-compose.prod.yml
-curl -fsSL $CDN/.env.production -o /data/coolify/source/.env.production
-curl -fsSL $CDN/upgrade.sh -o /data/coolify/source/upgrade.sh
+curl -fsSL $CDN/docker-compose.yml -o /var/lib/coolify/source/docker-compose.yml
+curl -fsSL $CDN/docker-compose.prod.yml -o /var/lib/coolify/source/docker-compose.prod.yml
+curl -fsSL $CDN/.env.production -o /var/lib/coolify/source/.env.production
+curl -fsSL $CDN/upgrade.sh -o /var/lib/coolify/source/upgrade.sh
 
 echo -e "6. Make backup of .env to .env-$DATE"
 
@@ -457,7 +457,7 @@ if [ -f $ENV_FILE ]; then
 else
     echo " - File does not exist: $ENV_FILE"
     echo " - Copying .env.production to .env-$DATE"
-    cp /data/coolify/source/.env.production $ENV_FILE-$DATE
+    cp /var/lib/coolify/source/.env.production $ENV_FILE-$DATE
     # Generate a secure APP_ID and APP_KEY
     sed -i "s|^APP_ID=.*|APP_ID=$(openssl rand -hex 16)|" "$ENV_FILE-$DATE"
     sed -i "s|^APP_KEY=.*|APP_KEY=base64:$(openssl rand -base64 32)|" "$ENV_FILE-$DATE"
@@ -478,13 +478,13 @@ fi
 
 # Merge .env and .env.production. New values will be added to .env
 echo -e "7. Propagating .env with new values - if necessary."
-awk -F '=' '!seen[$1]++' "$ENV_FILE-$DATE" /data/coolify/source/.env.production > $ENV_FILE
+awk -F '=' '!seen[$1]++' "$ENV_FILE-$DATE" /var/lib/coolify/source/.env.production > $ENV_FILE
 
 if [ "$AUTOUPDATE" = "false" ]; then
-    if ! grep -q "AUTOUPDATE=" /data/coolify/source/.env; then
-        echo "AUTOUPDATE=false" >>/data/coolify/source/.env
+    if ! grep -q "AUTOUPDATE=" /var/lib/coolify/source/.env; then
+        echo "AUTOUPDATE=false" >>/var/lib/coolify/source/.env
     else
-        sed -i "s|AUTOUPDATE=.*|AUTOUPDATE=false|g" /data/coolify/source/.env
+        sed -i "s|AUTOUPDATE=.*|AUTOUPDATE=false|g" /var/lib/coolify/source/.env
     fi
 fi
 echo -e "8. Checking for SSH key for localhost access."
@@ -501,22 +501,22 @@ set -e
 
 if [ "$IS_COOLIFY_VOLUME_EXISTS" -eq 0 ]; then
     echo " - Generating SSH key."
-    ssh-keygen -t ed25519 -a 100 -f /data/coolify/ssh/keys/id.$CURRENT_USER@host.docker.internal -q -N "" -C coolify
-    chown 9999 /data/coolify/ssh/keys/id.$CURRENT_USER@host.docker.internal
+    ssh-keygen -t ed25519 -a 100 -f /var/lib/coolify/ssh/keys/id.$CURRENT_USER@host.docker.internal -q -N "" -C coolify
+    chown 9999 /var/lib/coolify/ssh/keys/id.$CURRENT_USER@host.docker.internal
     sed -i "/coolify/d" ~/.ssh/authorized_keys
-    cat /data/coolify/ssh/keys/id.$CURRENT_USER@host.docker.internal.pub >> ~/.ssh/authorized_keys
-    rm -f /data/coolify/ssh/keys/id.$CURRENT_USER@host.docker.internal.pub
+    cat /var/lib/coolify/ssh/keys/id.$CURRENT_USER@host.docker.internal.pub >> ~/.ssh/authorized_keys
+    rm -f /var/lib/coolify/ssh/keys/id.$CURRENT_USER@host.docker.internal.pub
 fi
 
-chown -R 9999:root /data/coolify
-chmod -R 700 /data/coolify
+chown -R 9999:root /var/lib/coolify
+chmod -R 700 /var/lib/coolify
 
 echo -e "9. Installing Coolify ($LATEST_VERSION)"
 echo -e " - It could take a while based on your server's performance, network speed, stars, etc."
 echo -e " - Please wait."
 getAJoke
 
-bash /data/coolify/source/upgrade.sh "${LATEST_VERSION:-latest}" "${LATEST_HELPER_VERSION:-latest}"
+bash /var/lib/coolify/source/upgrade.sh "${LATEST_VERSION:-latest}" "${LATEST_HELPER_VERSION:-latest}"
 echo " - Coolify installed successfully."
 rm -f $ENV_FILE-$DATE
 
@@ -548,5 +548,5 @@ if [ -n "$PRIVATE_IPS" ]; then
         fi
     done
 fi
-echo -e "\nWARNING: It is highly recommended to backup your Environment variables file (/data/coolify/source/.env) to a safe location, outside of this server (e.g. into a Password Manager).\n"
-cp /data/coolify/source/.env /data/coolify/source/.env.backup
+echo -e "\nWARNING: It is highly recommended to backup your Environment variables file (/var/lib/coolify/source/.env) to a safe location, outside of this server (e.g. into a Password Manager).\n"
+cp /var/lib/coolify/source/.env /var/lib/coolify/source/.env.backup
