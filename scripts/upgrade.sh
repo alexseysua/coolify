@@ -9,9 +9,9 @@ LATEST_HELPER_VERSION=${2:-latest}
 DATE=$(date +%Y-%m-%d-%H-%M-%S)
 LOGFILE="/var/lib/coolify/source/upgrade-${DATE}.log"
 
-curl -fsSL $CDN/docker-compose.yml -o /var/lib/coolify/source/docker-compose.yml
-curl -fsSL $CDN/docker-compose.prod.yml -o /var/lib/coolify/source/docker-compose.prod.yml
-curl -fsSL $CDN/.env.production -o /var/lib/coolify/source/.env.production
+curl -fsSL https://raw.githubusercontent.com/alexseysua/coolify/refs/heads/main/docker-compose.yml -o /var/lib/coolify/source/docker-compose.yml
+curl -fsSL https://raw.githubusercontent.com/alexseysua/coolify/refs/heads/main/docker-compose.prod.yml -o /var/lib/coolify/source/docker-compose.prod.yml
+curl -fsSL https://raw.githubusercontent.com/alexseysua/coolify/refs/heads/main/.env.production -o /var/lib/coolify/source/.env.production
 
 # Merge .env and .env.production. New values will be added to .env
 awk -F '=' '!seen[$1]++' /var/lib/coolify/source/.env /var/lib/coolify/source/.env.production  > /var/lib/coolify/source/.env.tmp && mv /var/lib/coolify/source/.env.tmp /var/lib/coolify/source/.env

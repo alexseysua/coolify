@@ -114,9 +114,9 @@ if [ "$OS_TYPE" = 'amzn' ]; then
     dnf install -y findutils >/dev/null
 fi
 
-LATEST_VERSION=$(curl --silent $CDN/versions.json | grep -i version | xargs | awk '{print $2}' | tr -d ',')
-LATEST_HELPER_VERSION=$(curl --silent $CDN/versions.json | grep -i version | xargs | awk '{print $6}' | tr -d ',')
-LATEST_REALTIME_VERSION=$(curl --silent $CDN/versions.json | grep -i version | xargs | awk '{print $8}' | tr -d ',')
+LATEST_VERSION=$(curl --silent https://raw.githubusercontent.com/alexseysua/coolify/refs/heads/main/versions.json | grep -i version | xargs | awk '{print $2}' | tr -d ',')
+LATEST_HELPER_VERSION=$(curl --silent https://raw.githubusercontent.com/alexseysua/coolify/refs/heads/main/versions.json | grep -i version | xargs | awk '{print $6}' | tr -d ',')
+LATEST_REALTIME_VERSION=$(curl --silent https://raw.githubusercontent.com/alexseysua/coolify/refs/heads/main/versions.json | grep -i version | xargs | awk '{print $8}' | tr -d ',')
 
 if [ -z "$LATEST_HELPER_VERSION" ]; then
     LATEST_HELPER_VERSION=latest
@@ -444,10 +444,10 @@ else
 fi
 
 echo -e "5. Download required files from CDN. "
-curl -fsSL $CDN/docker-compose.yml -o /var/lib/coolify/source/docker-compose.yml
-curl -fsSL $CDN/docker-compose.prod.yml -o /var/lib/coolify/source/docker-compose.prod.yml
-curl -fsSL $CDN/.env.production -o /var/lib/coolify/source/.env.production
-curl -fsSL $CDN/upgrade.sh -o /var/lib/coolify/source/upgrade.sh
+curl -fsSL https://raw.githubusercontent.com/alexseysua/coolify/refs/heads/main/docker-compose.yml -o /var/lib/coolify/source/docker-compose.yml
+curl -fsSL https://raw.githubusercontent.com/alexseysua/coolify/refs/heads/main/docker-compose.prod.yml -o /var/lib/coolify/source/docker-compose.prod.yml
+curl -fsSL https://raw.githubusercontent.com/alexseysua/coolify/refs/heads/main/.env.production -o /var/lib/coolify/source/.env.production
+curl -fsSL https://raw.githubusercontent.com/alexseysua/coolify/refs/heads/main/upgrade.sh -o /var/lib/coolify/source/upgrade.sh
 
 echo -e "6. Make backup of .env to .env-$DATE"
 
