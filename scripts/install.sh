@@ -5,7 +5,7 @@ set -e # Exit immediately if a command exits with a non-zero status
 ## $1 could be empty, so we need to disable this check
 #set -u # Treat unset variables as an error and exit
 set -o pipefail # Cause a pipeline to return the status of the last command that exited with a non-zero status
-CDN="home/alexs/docker-dev/coolify"
+CDN="https://raw.githubusercontent.com/alexseysua/coolify/refs/heads/main"
 DATE=$(date +"%Y%m%d-%H%M%S")
 
 VERSION="1.6"
@@ -18,7 +18,7 @@ if [ $EUID != 0 ]; then
     exit
 fi
 
-echo -e "Привіт! Рухаємося до Перемоги"
+echo -e "Welcome to Coolify Installer!"
 echo -e "This script will install everything for you. Sit back and relax."
 echo -e "Source code: https://github.com/coollabsio/coolify/blob/main/scripts/install.sh\n"
 

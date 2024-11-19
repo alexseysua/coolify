@@ -2,7 +2,7 @@
 ## Do not modify this file. You will lose the ability to autoupdate!
 
 VERSION="13"
-CDN="home/alexs/docker-dev/coolify"
+CDN="https://raw.githubusercontent.com/alexseysua/coolify/refs/heads/main"
 LATEST_IMAGE=${1:-latest}
 LATEST_HELPER_VERSION=${2:-latest}
 
